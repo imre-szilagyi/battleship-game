@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.271
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Battleship.Wpf", "Battleship.Wpf\Battleship.Wpf.csproj", "{4786BB87-6DD3-4FA3-B5C9-8D0CA38EA1E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Battleship.Logic", "Battleship.Logic\Battleship.Logic.csproj", "{7D17294F-4375-4337-B49D-07B9C3C2EFB4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4786BB87-6DD3-4FA3-B5C9-8D0CA38EA1E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4786BB87-6DD3-4FA3-B5C9-8D0CA38EA1E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4786BB87-6DD3-4FA3-B5C9-8D0CA38EA1E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4786BB87-6DD3-4FA3-B5C9-8D0CA38EA1E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D17294F-4375-4337-B49D-07B9C3C2EFB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D17294F-4375-4337-B49D-07B9C3C2EFB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D17294F-4375-4337-B49D-07B9C3C2EFB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D17294F-4375-4337-B49D-07B9C3C2EFB4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {55736428-A08D-45F2-ABF6-B8B2993180A4}
+	EndGlobalSection
+EndGlobal
