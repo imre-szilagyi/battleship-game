@@ -1,0 +1,8 @@
+
+*.user
+WpfApp2/.vs/Battleship/v15/.suo
+*.ide-wal
+*.ide-shm
+*.ide
+*.lock
+Battleship/.vs/Battleship/v15/.suo
