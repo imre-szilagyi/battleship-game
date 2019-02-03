@@ -4,32 +4,57 @@ using System.Linq;
 
 namespace Battleship.Logic
 {
-    public class Board 
+    public class Board
     {
-        private List<Ship> _ships;
-
         public Board(int width, int height)
         {
-            _ships = new List<Ship>();
 
             Width = width;
             Height = height;
-
             FillBoard(width, height);
         }
 
         public event EventHandler<Ship> ShipSunk;
         public event EventHandler<Ship> ShipHit;
+        public event EventHandler ShipMiss;
+        public event EventHandler<bool> GameOver;
 
         public int Width { get; private set; }
         public int Height { get; private set; }
-        public IEnumerable<Ship> Ships => _ships;
+        public IEnumerable<Ship> Ships { get; internal set; }
         public IEnumerable<Cell> Cells { get; private set; }
 
-        public void Bomb(Cell cell)
+        public bool Bomb(int row, char column)
         {
-            cell.IsBombed = true;
-            CheckIfAShipWasHit(cell);
+            var cell = Cells.FirstOrDefault(c => c.Row == row && c.Column == column);
+            if (cell == null)
+                return false;
+
+            return Bomb(cell);
+        }
+
+        public bool Bomb(Cell cell)
+        {
+            if (cell.IsBombed == false)
+            {
+                cell.IsBombed = true;
+                CheckIfAShipWasHit(cell);
+
+                if (IsGameOver())
+                    InvokeGameOver();
+            }
+
+            return true;
+        }
+
+        private void InvokeGameOver()
+        {
+            GameOver?.Invoke(this, true);
+        }
+
+        public bool IsGameOver()
+        {
+            return Ships.All(s => s.IsSunk);
         }
 
         private void CheckIfAShipWasHit(Cell cell)
@@ -46,26 +71,34 @@ namespace Battleship.Logic
                     ShipHit.Invoke(this, ship);
                 }
             }
-        }
-
-        internal void AddShip(Ship ship)
-        {
-            _ships.Add(ship);
+            else
+            {
+                ShipMiss?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         private void FillBoard(int width, int height)
         {
+            //Only 26 letters in the alphabet
+            int alphabetLetters = 26;
+            if (width > alphabetLetters)
+                throw new ArgumentOutOfRangeException(nameof(width), width, $"Width is bigger than the allowed maximun of {alphabetLetters}");
+
+            var columnChar = 'A';
             var cells = new List<Cell>();
-            for (int row = 0; row < width; row++)
+            for (int column = 1; column <= height; column++)
             {
-                for (int col = 0; col < height; col++)
+                for (int row = 1; row <= width; row++)
                 {
-                    var cell = new Cell(row, col);
+                    var cell = new Cell(columnChar, column, row);
                     cells.Add(cell);
                 }
+
+                columnChar++;
             }
 
             Cells = cells;
         }
+
     }
 }

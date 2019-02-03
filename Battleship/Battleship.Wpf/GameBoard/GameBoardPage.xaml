@@ -7,10 +7,32 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="GameBoardPage">
 
+    <Page.Resources>
+        <SolidColorBrush x:Key="TileShipHitBrush" Color="OrangeRed"  />
+        <SolidColorBrush x:Key="TileShipMissedBrush" Color="LightGray"  />
+        <SolidColorBrush x:Key="TileBrush" Color="White"  />
+        <SolidColorBrush x:Key="BoardBackgroundBrush" Color="LightBlue"  />
+
+        <DataTemplate x:Key="HeaderItemTemplate">
+            <Border BorderBrush="LightGray" BorderThickness="1" Margin="2">
+                <TextBlock MinHeight="20" MinWidth="20" Text="{Binding}" FontWeight="Bold" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+        </DataTemplate>
+
+        <ItemsPanelTemplate x:Key="ColumnHeaderItemsTemplate">
+            <UniformGrid Columns="{Binding Count}" Rows="1" />
+        </ItemsPanelTemplate>
+        <ItemsPanelTemplate x:Key="RowHeaderItemsTemplate">
+            <UniformGrid Rows="{Binding Count}" Columns="1" />
+        </ItemsPanelTemplate>
+    </Page.Resources>
+
     <Grid x:Name="mainGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="1*"/>
+            <RowDefinition Height="auto"/>
+
         </Grid.RowDefinitions>
 
         <Grid>
@@ -18,32 +40,123 @@
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{Binding StatusMessage}"/>
             <Button Grid.Column="1" Content="Refresh" Command="{Binding RefreshCommand}"/>
         </Grid>
-        
-        <ItemsControl Grid.Row="1" x:Name="lst" Background="LightBlue" ItemsSource="{Binding Tiles}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <ItemsControl ItemsSource="{Binding}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button Background="{Binding TileColor, UpdateSourceTrigger=PropertyChanged}" Command="{Binding TileClickedCommand}" MinHeight="40" MinWidth="40" Margin="3"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <UniformGrid Columns="{Binding Count}" Rows="1"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <UniformGrid Rows="{Binding Count}" Columns="1" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl >
+
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+
+
+            <!--Headers-->
+            <ItemsControl Grid.Row="0" Grid.Column="1" ItemsSource="{Binding HeaderCharacters}" ItemTemplate="{StaticResource HeaderItemTemplate}" ItemsPanel="{StaticResource ColumnHeaderItemsTemplate}"/>
+            <ItemsControl Grid.Row="2" Grid.Column="1" ItemsSource="{Binding HeaderCharacters}" ItemTemplate="{StaticResource HeaderItemTemplate}" ItemsPanel="{StaticResource ColumnHeaderItemsTemplate}"/>
+            <ItemsControl Grid.Row="1" Grid.Column="0" ItemsSource="{Binding HeaderNumbers}" ItemTemplate="{StaticResource HeaderItemTemplate}" ItemsPanel="{StaticResource RowHeaderItemsTemplate}"/>
+            <ItemsControl Grid.Row="1" Grid.Column="2" ItemsSource="{Binding HeaderNumbers}" ItemTemplate="{StaticResource HeaderItemTemplate}" ItemsPanel="{StaticResource RowHeaderItemsTemplate}"/>
+
+
+
+            <!--Game Board-->
+            <ItemsControl Grid.Row="1" Grid.Column="1" Background="{StaticResource BoardBackgroundBrush}" ItemsSource="{Binding GroupedTiles}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ItemsControl ItemsSource="{Binding}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <!--<Button Background="{Binding TileColor, UpdateSourceTrigger=PropertyChanged}" Command="{Binding TileClickedCommand}" BorderBrush="LightGray" BorderThickness="2" Margin="1"/>-->
+                                    <Button Command="{Binding TileClickedCommand}" BorderBrush="LightGray" BorderThickness="2" Margin="1">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Background" Value="{StaticResource TileBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsBombed}" Value="True">
+                                                        <Setter Property="Background" Value="{StaticResource TileShipMissedBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsOccupiedByShip}" Value="True">
+                                                        <Setter Property="Background" Value="{StaticResource TileShipHitBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="{Binding Count}" Rows="1"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="{Binding Count}" Columns="1" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl >
+
+            <!--Legend Container-->
+            <Border Grid.Column="3" Grid.RowSpan="3"  BorderBrush="LightGray" BorderThickness="1" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" FontWeight="Bold" TextAlignment="Center" Text="Legend" Margin="4"/>
+
+                    <TextBlock Grid.Row="1" FontWeight="Bold" TextAlignment="Center" Text="Not Bombed" Margin="4"/>
+                    <Border Grid.Row="2" BorderBrush="Gray" BorderThickness="1" Margin="4">
+                        <Rectangle Fill="{StaticResource TileBrush}"  />
+                    </Border>
+
+                    <TextBlock Grid.Row="3" FontWeight="Bold"  TextAlignment="Center" Text="Bombed - Missed" Margin="4"/>
+                    <Border Grid.Row="4" BorderBrush="Gray" BorderThickness="1" Margin="4" >
+                        <Rectangle Fill="{StaticResource TileShipMissedBrush}"/>
+                    </Border>
+
+                    <TextBlock Grid.Row="5" FontWeight="Bold" TextAlignment="Center" Text="Bombed - Hit" Margin="4"/>
+                    <Border Grid.Row="6" BorderBrush="Gray" BorderThickness="1" Margin="4">
+                        <Rectangle Fill="{StaticResource TileShipHitBrush}" />
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="2" Grid.ColumnSpan="2"  >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+
+
+            <StackPanel Grid.Column="1">
+                <Label Grid.Column="0" FontWeight="Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{Binding StatusMessage}"/>
+                <TextBox TextAlignment="Center" Text="{Binding Coordinates, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+                <Button Command="{Binding BombCommand}" Content="Bomb Coordinates" Margin="5"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <Border BorderBrush="Gray" BorderThickness="1" Margin="4">
+                    <CheckBox  IsChecked="{Binding ShowHiddenShips}" >
+                        <TextBlock Text="Show Hidden Ships"/>
+                    </CheckBox>
+                </Border>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Page>

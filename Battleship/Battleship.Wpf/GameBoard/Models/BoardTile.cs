@@ -1,56 +1,49 @@
 ﻿using System.ComponentModel;
 using System.Windows.Input;
-using System.Windows.Media;
 using Battleship.Wpf.GameBoard.Commands;
 using Battleship.Logic;
+using System.Runtime.CompilerServices;
+using System;
 
 namespace Battleship.Wpf.GameBoard.Models
 {
     internal class BoardTile : INotifyPropertyChanged
     {
-        private Cell _cell;
+        private Action<BoardTile> _tileClickedCallback;
 
-        public BoardTile(Cell cell)
+        public BoardTile(Cell cell, Action<BoardTile> tileClickedCallback)
         {
-            _cell = cell;
+            Cell = cell;
+            _tileClickedCallback = tileClickedCallback;
             TileClickedCommand = new TileClickedCommand(this);
-            TileColor = new SolidColorBrush();
-            RefreshCellColor();
+            RefreshTile();
         }
 
+        public Cell Cell { get; private set; }
         public ICommand TileClickedCommand { get; private set; }
-        public int Col => _cell.Col;
-        public int Row => _cell.Row;
-        public bool IsTileEnabled => !_cell.IsBombed;
-        public SolidColorBrush TileColor { get; private set; }
+        public int Row => Cell.Row;
+        public char Column => Cell.Column;
+        public bool IsTileEnabled => !Cell.IsBombed;
+        public bool IsBombed => Cell.IsBombed;
+        public bool ShowShip { get; set; }
+        public bool IsOccupiedByShip => ShowShip ? Cell.IsOccupiedByShip : Cell.IsBombed && Cell.IsOccupiedByShip;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void RefreshCellColor()
+        public void RefreshTile()
         {
-            if (_cell.IsBombed)
-            {
-                if (_cell.IsOccupiedByShip)
-                    TileColor.Color = Colors.Red;
-                else
-                    TileColor.Color = Colors.Orange;
-            }
-            else
-            {
-                TileColor.Color = Colors.White;
-            }
-
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TileColor)));
+            RaisePropChanged(nameof(IsBombed));
+            RaisePropChanged(nameof(IsOccupiedByShip));
         }
 
-        internal void Bomb()
+        internal void Clicked()
         {
-            if (_cell.IsBombed)
-                return;
+            _tileClickedCallback(this);
+        }
 
-            _cell.BombCell();
-            RefreshCellColor();
-
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsTileEnabled)));
+        private void RaisePropChanged([CallerMemberName] string propName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
     }
 }

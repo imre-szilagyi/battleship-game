@@ -55,7 +55,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="GameBoard\Commands\RefreshCommand.cs" />
+    <Compile Include="GameBoard\Commands\RelayCommand.cs" />
     <Compile Include="GameBoard\Models\BoardTile.cs" />
     <Compile Include="GameBoard\Commands\TileClickedCommand.cs" />
     <Compile Include="GameBoard\GameBoardPage.xaml.cs">

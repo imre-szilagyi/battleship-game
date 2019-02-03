@@ -5,11 +5,10 @@ namespace Battleship.Logic
 {
     public class Ship
     {
-        private IEnumerable<Cell> _occupiedCells;
-
-        public Ship(string name)
+        public Ship(string name, int size)
         {
             Name = name;
+            Size = size;
         }
 
         public string Name { get; }

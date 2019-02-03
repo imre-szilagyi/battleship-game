@@ -22,7 +22,7 @@ namespace Battleship.Wpf.GameBoard.Commands
 
         public void Execute(object parameter)
         {
-            _tile.Bomb();
+            _tile.Clicked();
         }
     }
 }
