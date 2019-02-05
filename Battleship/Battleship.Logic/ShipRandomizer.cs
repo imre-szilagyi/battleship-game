@@ -25,20 +25,15 @@ namespace Battleship.Logic
 
         private void FindCellsForShip(Random random, int width, int height, Ship ship, List<Cell> unoccupiedCells)
         {
-            for (int i = 0; i < 3; i++)
+            var cellsToOccupy = GetCellsForShip(random, ship.Size, unoccupiedCells, width, height);
+            if (cellsToOccupy != null)
             {
-                var cellsToOccupy = GetCellsForShip(random, ship.Size, unoccupiedCells, width, height);
-                if (cellsToOccupy != null)
+                ship.OccupiedCells = cellsToOccupy;
+                foreach (var cell in cellsToOccupy)
                 {
-                    ship.OccupiedCells = cellsToOccupy;
-                    foreach (var cell in cellsToOccupy)
-                    {
-                        cell.IsOccupiedByShip = true;
-                    }
-                    break;
+                    cell.IsOccupiedByShip = true;
                 }
             }
-
         }
 
         private IEnumerable<Cell> GetCellsForShip(Random random, int size, List<Cell> cells, int boardWidth, int boardHeight)
