@@ -1,22 +1,25 @@
-﻿namespace Battleship.Logic
+﻿using Battleship.Logic.Interfaces;
+using Battleship.Logic.Players;
+using System.Linq;
+
+namespace Battleship.Logic
 {
     public static class Setup
     {
         private const int DEFAULT_WIDTH = 10;
         private const int DEFAULT_HEIGHT = 10;
 
-        public static Board GetBoard()
+        public static IPlayer SetupSinglePlayerGame()
         {
             var board = new Board(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-
             var shipfactory = new ShipFactory();
-            var ships = shipfactory.GetSinglePlayerShips();
-            var randomizer = new ShipRandomizer();
-            randomizer.OcupyCellsWithShips(board.Cells, ships);
+            board.Ships = shipfactory.GetSinglePlayerShips();
 
-            board.Ships = ships;
+            var randomizer = new ShipRandomPlacer();
+            randomizer.PlaceShips(board.Ships, board.Cells);
+            var humanPlayer = new SinglePlayerHuman(board);
 
-            return board;
+            return humanPlayer;
         }
     }
 }

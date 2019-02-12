@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Battleship.Logic.Models;
+using Battleship.Logic.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Battleship.Logic
 {
-    public class Board
+    internal class Board : IBoard
     {
         public Board(int width, int height)
         {
@@ -14,67 +16,43 @@ namespace Battleship.Logic
             FillBoard(width, height);
         }
 
-        public event EventHandler<Ship> ShipSunk;
-        public event EventHandler<Ship> ShipHit;
-        public event EventHandler ShipMiss;
-        public event EventHandler<bool> GameOver;
-
         public int Width { get; private set; }
         public int Height { get; private set; }
         public IEnumerable<Ship> Ships { get; internal set; }
         public IEnumerable<Cell> Cells { get; private set; }
 
-        public bool Bomb(int row, char column)
+        public BombingResult Bomb(int row, char column)
         {
-            var cell = Cells.FirstOrDefault(c => c.Row == row && c.Column == column);
+            var cell = Cells.FirstOrDefault(c => c.Row == row && c.ColumnHeader == column);
             if (cell == null)
-                return false;
+                throw new ArgumentException($"Invalid coordinates '{column}{row}'.");
+            if (cell.IsBombed)
+                throw new ArgumentException($"Cell '{cell.ColumnHeader}{cell.Row}' was already bombed.");
 
-            return Bomb(cell);
+            cell.IsBombed = true;
+            return GetResultOfBombing(cell);
         }
 
-        public bool Bomb(Cell cell)
-        {
-            if (cell.IsBombed == false)
-            {
-                cell.IsBombed = true;
-                CheckIfAShipWasHit(cell);
-
-                if (IsGameOver())
-                    InvokeGameOver();
-            }
-
-            return true;
-        }
-
-        private void InvokeGameOver()
-        {
-            GameOver?.Invoke(this, true);
-        }
-
-        public bool IsGameOver()
+        private bool IsGameOver()
         {
             return Ships.All(s => s.IsSunk);
         }
 
-        private void CheckIfAShipWasHit(Cell cell)
+        private BombingResult GetResultOfBombing(Cell cell)
         {
             var ship = Ships.FirstOrDefault(s => s.OccupiedCells.Contains(cell));
-            if (ship != null)
+            if (ship == null)
+                return BombingResult.Miss;
+
+            if (ship.IsSunk)
             {
-                if (ship.IsSunk)
-                {
-                    ShipSunk?.Invoke(this, ship);
-                }
-                else
-                {
-                    ShipHit.Invoke(this, ship);
-                }
+                if (IsGameOver())
+                    return BombingResult.AllShipsSunk;
+
+                return BombingResult.Sink;
             }
-            else
-            {
-                ShipMiss?.Invoke(this, EventArgs.Empty);
-            }
+
+            return BombingResult.Hit;
         }
 
         private void FillBoard(int width, int height)

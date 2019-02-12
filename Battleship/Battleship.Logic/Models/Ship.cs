@@ -5,13 +5,13 @@ namespace Battleship.Logic
 {
     public class Ship
     {
-        public Ship(string name, int size)
+        public Ship(string shipClass, int size)
         {
-            Name = name;
+            Class = shipClass;
             Size = size;
         }
 
-        public string Name { get; }
+        public string Class { get; }
         public int Size { get; }
         public bool IsSunk => OccupiedCells.All(c => c.IsBombed);
         public IEnumerable<Cell> OccupiedCells { get; internal set; }

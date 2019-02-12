@@ -2,7 +2,7 @@
 
 namespace Battleship.Logic
 {
-    public class ShipFactory
+    internal class ShipFactory
     {
         public IEnumerable<Ship> GetSinglePlayerShips()
         {

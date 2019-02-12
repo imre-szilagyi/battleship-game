@@ -6,6 +6,8 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
 using Battleship.Logic;
+using Battleship.Logic.Interfaces;
+using Battleship.Logic.Models;
 using Battleship.Wpf.GameBoard.Commands;
 using Battleship.Wpf.GameBoard.Models;
 
@@ -14,7 +16,8 @@ namespace Battleship.Wpf.GameBoard
     internal class GameBoardViewModel : INotifyPropertyChanged
     {
         private bool _showHiddenShips;
-        public Board Board { get; private set; }
+        private bool _bombingEnabled;
+        public IPlayer Player { get; private set; }
 
         public GameBoardViewModel()
         {
@@ -26,6 +29,19 @@ namespace Battleship.Wpf.GameBoard
         public ICommand BombCommand { get; private set; }
         public ICommand RefreshCommand { get; private set; }
 
+        public bool IsBombingEnabled
+        {
+            get
+            {
+                return _bombingEnabled;
+            }
+            private set
+            {
+                _bombingEnabled = value;
+                ToggleTiles();
+                RaisePropertyChanged();
+            }
+        }
         public string Coordinates { get; set; }
         public string StatusMessage { get; private set; }
         public IEnumerable<char> HeaderCharacters { get; private set; }
@@ -44,12 +60,11 @@ namespace Battleship.Wpf.GameBoard
             }
         }
 
-
         internal void OnRefreshCommand(object param)
         {
             RefreshTiles();
             RefreshGroupedTiles();
-            RefreshHeaders();           
+            RefreshHeaders();
             RaisePropertyChanged(null);
             UpdateStatusMessage("Refreshed!");
         }
@@ -70,43 +85,8 @@ namespace Battleship.Wpf.GameBoard
 
         private void RefreshTiles()
         {
-            if (Board != null)
-                CleanupExistingBoard();
-
-            Board = Setup.GetBoard();
-            Board.ShipHit += OnShipHit;
-            Board.ShipMiss += OnShipMiss;
-            Board.ShipSunk += OnShipSunk;
-            Board.GameOver += OnGameOver;
-            Tiles = Board.Cells.Select(c => new BoardTile(c, OnTileClickedCallback) { ShowShip = _showHiddenShips }).ToList();
-        }
-
-        private void CleanupExistingBoard()
-        {
-            Board.ShipHit -= OnShipHit;
-            Board.ShipMiss -= OnShipMiss;
-            Board.ShipSunk -= OnShipSunk;
-            Board.GameOver -= OnGameOver;
-        }
-
-        private void OnGameOver(object sender, bool e)
-        {
-            UpdateStatusMessage("Game Over - Victory!");
-        }
-
-        private void OnShipSunk(object sender, Ship e)
-        {
-            UpdateStatusMessage("Ship sunk!");
-        }
-
-        private void OnShipMiss(object sender, EventArgs e)
-        {
-            UpdateStatusMessage("Missed!");
-        }
-
-        private void OnShipHit(object sender, Ship e)
-        {
-            UpdateStatusMessage("Ship hit!");
+            Player = Setup.SetupSinglePlayerGame();
+            Tiles = Player.Board.Cells.Select(c => new BoardTile(c, OnTileClickedCallback) { ShowShip = _showHiddenShips }).ToList();
         }
 
         private void OnTileClickedCallback(BoardTile tile)
@@ -117,15 +97,40 @@ namespace Battleship.Wpf.GameBoard
                 return;
             }
 
-            if (Board.Bomb(tile.Row, tile.Column) == false)
-            {
-                UpdateStatusMessage("Incorrect coordinates!");
-                return;
-            }
+            var result = Player.Bomb(tile.Row, tile.Column);
+            HandleResult(result);
+
 
             tile.RefreshTile();
         }
 
+        private void HandleResult(BombingResult result)
+        {
+            switch (result)
+            {
+                case BombingResult.Miss:
+                    UpdateStatusMessage("Missed!");
+                    break;
+                case BombingResult.Hit:
+                    UpdateStatusMessage("Ship hit!");
+                    break;
+                case BombingResult.Sink:
+                    UpdateStatusMessage("Ship sunk!");
+                    break;
+                case BombingResult.AllShipsSunk:
+                    UpdateStatusMessage("Game Over - Victory!");
+                    IsBombingEnabled = false;
+                    break;
+            }
+        }        
+
+        private void ToggleTiles()
+        {
+            foreach (var tile in Tiles)
+            {
+                tile.ToggleTile(IsBombingEnabled);
+            }
+        }
 
         private void RaisePropertyChanged([CallerMemberName] string name = null)
         {

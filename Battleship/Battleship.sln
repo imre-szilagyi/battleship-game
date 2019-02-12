@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Battleship.Wpf", "Battleshi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Battleship.Logic", "Battleship.Logic\Battleship.Logic.csproj", "{7D17294F-4375-4337-B49D-07B9C3C2EFB4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Battleship.Tests", "Battleship.Tests\Battleship.Tests.csproj", "{BFE030DB-6888-4EE1-A932-619C7883623E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{7D17294F-4375-4337-B49D-07B9C3C2EFB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D17294F-4375-4337-B49D-07B9C3C2EFB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D17294F-4375-4337-B49D-07B9C3C2EFB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFE030DB-6888-4EE1-A932-619C7883623E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFE030DB-6888-4EE1-A932-619C7883623E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFE030DB-6888-4EE1-A932-619C7883623E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFE030DB-6888-4EE1-A932-619C7883623E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

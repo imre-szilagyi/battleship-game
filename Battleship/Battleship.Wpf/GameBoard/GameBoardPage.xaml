@@ -72,8 +72,7 @@
                         <ItemsControl ItemsSource="{Binding}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <!--<Button Background="{Binding TileColor, UpdateSourceTrigger=PropertyChanged}" Command="{Binding TileClickedCommand}" BorderBrush="LightGray" BorderThickness="2" Margin="1"/>-->
-                                    <Button Command="{Binding TileClickedCommand}" BorderBrush="LightGray" BorderThickness="2" Margin="1">
+                                    <Button Command="{Binding TileClickedCommand}" IsEnabled="{Binding IsTileEnabled}" BorderBrush="LightGray" BorderThickness="2" Margin="1">
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Background" Value="{StaticResource TileBrush}"/>
@@ -148,7 +147,7 @@
             <StackPanel Grid.Column="1">
                 <Label Grid.Column="0" FontWeight="Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{Binding StatusMessage}"/>
                 <TextBox TextAlignment="Center" Text="{Binding Coordinates, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-                <Button Command="{Binding BombCommand}" Content="Bomb Coordinates" Margin="5"/>
+                <Button Command="{Binding BombCommand}" IsEnabled="{Binding IsBombingEnabled}" Content="Bomb Coordinates" Margin="5"/>
             </StackPanel>
             <StackPanel Grid.Column="2">
                 <Border BorderBrush="Gray" BorderThickness="1" Margin="4">
