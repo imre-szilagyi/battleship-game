@@ -10,11 +10,9 @@ namespace Battleship.Logic.Interfaces
         /// <summary>
         /// Call this method when a cell is bombed
         /// </summary>
-        /// <returns></returns>
-        /// <exception cref="System.ArgumentException">
-        ///     Thrown when the row or column is out of bounds
-        ///     Or when these coordinates where already bombed.
-        /// </exception>
-        BombingResult Bomb(int row, char column);
+        /// <returns>The Result of the Bombing: Miss, Hit, Sink, AllShipsSunk</returns>
+        /// <exception cref="System.ArgumentException">Thrown when these coordinates where already bombed.</exception>
+        /// <exception cref="System.IndexOutOfRangeException">Thrown when the row or column is out of bounds</exception>
+        BombingResult Bomb(char column, int row);
     }
 }

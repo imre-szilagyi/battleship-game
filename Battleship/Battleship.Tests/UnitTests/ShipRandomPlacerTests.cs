@@ -3,8 +3,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Battleship.Tests.UnitTests
 {
@@ -13,33 +11,37 @@ namespace Battleship.Tests.UnitTests
     {
         [ExpectedException(typeof(ArgumentException))]
         [TestMethod]
-        public void PlaceShips_ShipSizeBiggerThanNumberOfRows_ArgumentExpcetion()
+        public void PlaceShips_ShipSizeBiggerThanNumberOfRowsAndColumns_ArgumentExpcetion()
         {
             //Arrange
             var ships = new List<Ship>() { new Ship("Test", 8) };
-            var board = new Board(10, 7);
+            var board = new Board(7, 7);
             var placer = new ShipRandomPlacer();
 
             //Act
             placer.PlaceShips(ships, board.Cells);
         }
 
-        [ExpectedException(typeof(ArgumentException))]
         [TestMethod]
-        public void PlaceShips_ShipSizeBiggerThanNumberOfColumns_ArgumentExpcetion()
+        public void PlaceShips_ShipSizeBiggerThanNumberOfColumnsButNotBiggerThenNumberOfRows_ShipIsPlacedOnBoard()
         {
             //Arrange
-            var ships = new List<Ship>() { new Ship("Test", 8) };
-            var board = new Board(7, 10);
+            var ship = new Ship("Test", 8);
+            var ships = new List<Ship>() { ship };
+            var board = new Board(8, 1);
             var placer = new ShipRandomPlacer();
 
             //Act
             placer.PlaceShips(ships, board.Cells);
+
+            //Assert
+            Assert.IsNotNull(ship.OccupiedCells);
+            Assert.IsTrue(ship.OccupiedCells.Any());
         }
 
         [ExpectedException(typeof(ArgumentException))]
         [TestMethod]
-        public void PlaceShips_NumberOfShipsBiggerThanNumberOfColumns_ArgumentExpcetion()
+        public void PlaceShips_NMoreShipsInTheListThanNumberThanNumberOfColumnsAndRows_ArgumentExpcetion()
         {
             //Arrange
             var ships = new List<Ship>() { new Ship("Test", 1), new Ship("Test", 1) };
@@ -48,6 +50,22 @@ namespace Battleship.Tests.UnitTests
 
             //Act
             placer.PlaceShips(ships, board.Cells);
+        }
+
+        [TestMethod]
+        public void PlaceShips_MoreShipsInTheListThanNumberOfColumnsButNotRows_AllShipsArePlaced()
+        {
+            //Arrange
+            var ships = new List<Ship>() { new Ship("Test", 1), new Ship("Test", 1) };
+            var board = new Board(2, 1);
+            var placer = new ShipRandomPlacer();
+
+            //Act
+            placer.PlaceShips(ships, board.Cells);
+
+            //Assert
+            Assert.IsTrue(ships.All(s => s.OccupiedCells != null));
+            Assert.IsTrue(ships.All(s => s.OccupiedCells.Any()));
         }
 
         [TestMethod]
@@ -70,12 +88,11 @@ namespace Battleship.Tests.UnitTests
         }
 
         [TestMethod]
-        public void PlaceShips_ShipSize1NumberOfShips2BoardSize2x2_ShipOccupiedCellsAreNotEmpty()
+        public void PlaceShips_ShipSize5NumberOfShips5BoardSize5x5_ShipOccupiedCellsAreNotEmpty()
         {
             //Arrange
-            var ships = new List<Ship>() { new Ship("Test", 1), new Ship("Test", 1) };
-            var board = new Board(2, 2);
-            var cell = board.Cells.First();
+            var ships = new List<Ship>() { new Ship("Test", 5), new Ship("Test", 5), new Ship("Test", 5) , new Ship("Test", 5) , new Ship("Test", 5) };
+            var board = new Board(5, 5);
             var placer = new ShipRandomPlacer();
 
             //Act
@@ -84,6 +101,21 @@ namespace Battleship.Tests.UnitTests
             //Assert
             Assert.IsTrue(ships.All(s => s.OccupiedCells.Any()));
         }
-        
+
+        [TestMethod]
+        public void PlaceShips_DifferentShipSizesNumberOfShips5BoardSize5x5_ShipOccupiedCellsAreNotEmpty()
+        {
+            //Arrange
+            var ships = new List<Ship>() { new Ship("Test", 3), new Ship("Test", 2), new Ship("Test", 2), new Ship("Test", 1), new Ship("Test", 5) };
+            var board = new Board(5, 3);
+            var placer = new ShipRandomPlacer();
+
+            //Act
+            placer.PlaceShips(ships, board.Cells);
+
+            //Assert
+            Assert.IsTrue(ships.All(s => s.OccupiedCells.Any()));
+        }
+
     }
 }

@@ -97,7 +97,7 @@ namespace Battleship.Wpf.GameBoard
                 return;
             }
 
-            var result = Player.Bomb(tile.Row, tile.Column);
+            var result = Player.Bomb(tile.Column, tile.Row);
             HandleResult(result);
 
 

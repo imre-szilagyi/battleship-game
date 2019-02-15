@@ -24,18 +24,21 @@ namespace Battleship.Logic
         public void PlaceShips(IEnumerable<Ship> ships, IEnumerable<Cell> cells)
         {
             VerifyArguments(ships, cells);
+
+            //Place the larger ships first so that the smaller don't get in the way
+            var shipsOrderedBySize = ships.OrderByDescending(s => s.Size);
             var unOccupiedCells = new List<Cell>(cells);
-            foreach (var ship in ships)
+            foreach (var ship in shipsOrderedBySize)
             {
                 var occupiedCells = GetCellsForShip(ship.Size, unOccupiedCells);
-                if (occupiedCells != null)
+                if (occupiedCells == null)
+                    throw new Exception($"Wans't able to find cells to ocupy for ship: {ship.Size}.");
+
+                unOccupiedCells.RemoveAll(c => occupiedCells.Contains(c));
+                ship.OccupiedCells = occupiedCells;
+                foreach (var cell in occupiedCells)
                 {
-                    unOccupiedCells.RemoveAll(c => occupiedCells.Contains(c));
-                    ship.OccupiedCells = occupiedCells;
-                    foreach (var cell in occupiedCells)
-                    {
-                        cell.IsOccupiedByShip = true;
-                    }
+                    cell.IsOccupiedByShip = true;
                 }
             }
         }
@@ -52,31 +55,33 @@ namespace Battleship.Logic
             var maxCol = cells.Max(c => c.Column);
             var maxRow = cells.Max(c => c.Row);
 
-            if (maxShipSize > maxCol || maxShipSize > maxRow)
+            if (maxShipSize > maxCol && maxShipSize > maxRow)
                 throw new ArgumentException("Number or rows and columns must be greater or equal to the largest ship.");
 
             var shipsCount = ships.Count();
-            if (shipsCount > maxCol || shipsCount > maxRow)
+            if (shipsCount > maxCol && shipsCount > maxRow)
                 throw new ArgumentException("Number or rows and columns must be greater or equal to the number of ships.");
         }
 
-        private IEnumerable<Cell> GetCellsForShip(int size, IEnumerable<Cell> cells)
+        private IEnumerable<Cell> GetCellsForShip(int shipSize, List<Cell> cells)
         {
+            var random = new Random();
+            var isVertical = random.Next(0, 2) == 1;
+            var randomIndex = random.Next(0, cells.Count);
+            var randomCell = cells.ElementAt(randomIndex);
+            var startingColumn = randomCell.Column;
+            var startingRow = randomCell.Row;
             var maxRow = cells.Max(c => c.Row);
             var maxColumn = cells.Max(c => c.Column);
-            var random = new Random();
-            var isVertical = random.Next(0, 100) % 2 == 0;
-            var startingColumn = random.Next(1, maxColumn);
-            var startingRow = random.Next(1, maxRow);
 
-            IEnumerable<Cell> cellsToOccupy = FindCells(cells, startingRow, startingColumn, maxRow, maxColumn, size, isVertical);
+            IEnumerable<Cell> cellsToOccupy = FindCells(cells, startingRow, startingColumn, maxRow, maxColumn, shipSize, isVertical);
             if (cellsToOccupy == null)
-                cellsToOccupy = FindCells(cells, startingRow, startingColumn, maxRow, maxColumn, size, !isVertical);
+                cellsToOccupy = FindCells(cells, startingRow, startingColumn, maxRow, maxColumn, shipSize, !isVertical);
 
             return cellsToOccupy;
         }
 
-        private IEnumerable<Cell> FindCells(IEnumerable<Cell> cells, int startingRow, int startingColumn, int maxColumn, int maxRow, int size, bool vertical)
+        private IEnumerable<Cell> FindCells(IEnumerable<Cell> cells, int startingRow, int startingColumn, int maxRow, int maxColumn, int size, bool vertical)
         {
             for (int row = startingRow; ;)
             {
@@ -95,17 +100,22 @@ namespace Battleship.Logic
                             return vcells;
                     }
 
-
+                    //If the start cell is not a good cell, go around the board and check every cell.
                     //Full loop around the board
                     col++;
-                    col = col % maxRow;
+                    if (col > maxColumn)
+                        col = 0;
+
                     if (col == startingColumn)
                         break;
                 }
 
+                //If the start cell is not a good cell, go around the board and check every cell.
                 //Full loop around the board
                 row++;
-                row = row % maxColumn;
+                if (row > maxRow)
+                    row = 0;
+
                 if (row == startingRow)
                     break;
             }
@@ -144,11 +154,11 @@ namespace Battleship.Logic
             return vcells.Count == size ? vcells : null;
         }
 
-        private IEnumerable<Cell> FindVerticalCellGroup(IEnumerable<Cell> cells, int row, int col, int size)
+        private IEnumerable<Cell> FindVerticalCellGroup(IEnumerable<Cell> cells, int row, int col, int shipSize)
         {
             var tempRow = row;
             var vcells = new List<Cell>();
-            for (int i = 0; i < size; i++)
+            for (int i = 0; i < shipSize; i++)
             {
                 var cell = GetCell(tempRow, col, cells);
                 if (cell == null)
@@ -158,10 +168,10 @@ namespace Battleship.Logic
                 tempRow++;
             }
 
-            if (vcells.Count < size)
+            if (vcells.Count < shipSize)
             {
                 tempRow = row;
-                for (int i = 0; i < size; i++)
+                for (int i = 0; i < shipSize; i++)
                 {
                     var cell = GetCell(tempRow, col, cells);
                     if (cell == null)
@@ -172,7 +182,7 @@ namespace Battleship.Logic
                 }
             }
 
-            return vcells.Count == size ? vcells : null;
+            return vcells.Count == shipSize ? vcells : null;
         }
 
         private Cell GetCell(int row, int col, IEnumerable<Cell> cells)

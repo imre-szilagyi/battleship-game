@@ -8,24 +8,23 @@ namespace Battleship.Logic
 {
     internal class Board : IBoard
     {
-        public Board(int width, int height)
+        public Board(int columns, int rows)
         {
-
-            Width = width;
-            Height = height;
-            FillBoard(width, height);
+            ColumnCount = columns;
+            RowCount = rows;
+            FillBoard(columns, rows);
         }
 
-        public int Width { get; private set; }
-        public int Height { get; private set; }
+        public int ColumnCount { get; private set; }
+        public int RowCount { get; private set; }
         public IEnumerable<Ship> Ships { get; internal set; }
         public IEnumerable<Cell> Cells { get; private set; }
 
-        public BombingResult Bomb(int row, char column)
+        public BombingResult Bomb(char column, int row)
         {
             var cell = Cells.FirstOrDefault(c => c.Row == row && c.ColumnHeader == column);
             if (cell == null)
-                throw new ArgumentException($"Invalid coordinates '{column}{row}'.");
+                throw new IndexOutOfRangeException($"Invalid coordinates '{column}{row}'.");
             if (cell.IsBombed)
                 throw new ArgumentException($"Cell '{cell.ColumnHeader}{cell.Row}' was already bombed.");
 
@@ -40,6 +39,9 @@ namespace Battleship.Logic
 
         private BombingResult GetResultOfBombing(Cell cell)
         {
+            if (Ships == null)
+                return BombingResult.Miss;
+
             var ship = Ships.FirstOrDefault(s => s.OccupiedCells.Contains(cell));
             if (ship == null)
                 return BombingResult.Miss;
@@ -55,18 +57,18 @@ namespace Battleship.Logic
             return BombingResult.Hit;
         }
 
-        private void FillBoard(int width, int height)
+        private void FillBoard(int columns, int rows)
         {
             //Only 26 letters in the alphabet
             int alphabetLetters = 26;
-            if (width > alphabetLetters)
-                throw new ArgumentOutOfRangeException(nameof(width), width, $"Width is bigger than the allowed maximun of {alphabetLetters}");
+            if (columns > alphabetLetters)
+                throw new ArgumentOutOfRangeException(nameof(columns), columns, $"Width is bigger than the allowed maximun of {alphabetLetters}");
 
             var columnChar = 'A';
             var cells = new List<Cell>();
-            for (int column = 1; column <= height; column++)
+            for (int column = 1; column <= columns; column++)
             {
-                for (int row = 1; row <= width; row++)
+                for (int row = 1; row <= rows; row++)
                 {
                     var cell = new Cell(columnChar, column, row);
                     cells.Add(cell);

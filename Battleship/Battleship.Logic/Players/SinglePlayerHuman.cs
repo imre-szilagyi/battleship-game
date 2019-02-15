@@ -13,9 +13,9 @@ namespace Battleship.Logic.Players
         }
 
         public IBoard Board => _board;
-        public BombingResult Bomb(int row, char column)
+        public BombingResult Bomb(char column, int row)
         {
-            return _board.Bomb(row, column);
+            return _board.Bomb(column, row);
         }
     }
 }
